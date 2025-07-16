@@ -1,0 +1,36 @@
+
+
+<h1>📁 Project Master Records</h1>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Project Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Project Manager</th>
+        <th>CBSL Client</th>
+        <th>DIH Client</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (projects.length === 0) { %>
+        <tr>
+          <td colspan="6" style="text-align:center;">No project master records found.</td>
+        </tr>
+      <% } else { %>
+        <% projects.forEach(project => { %>
+          <tr>
+            <td><%= project.projectName %></td>
+            <td><%= project.startDate %></td>
+            <td><%= project.endDate %></td>
+            <td><%= project.projectManager %></td>
+            <td><%= project.cbslClient %></td>
+            <td><%= project.dihClient %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>

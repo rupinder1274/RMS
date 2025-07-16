@@ -1,0 +1,211 @@
+/* Premium polished UI for HRMS dashboard */
+
+/* Body & layout */
+body {
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #dff6fd, #f5fafd);
+  color: #333;
+  margin: 0;
+  padding: 20px;
+  line-height: 1.7;
+}
+
+/* Headings */
+h1 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 32px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Main container card */
+.container {
+  max-width: 1100px;   /* slightly wider so table fits nicely */
+  margin: 40px auto;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* Table container */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;  /* allow vertical scroll */
+  max-height: 500px;  /* helps on small screens; desktop won’t scroll thanks to compact size */
+  margin-top: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Links */
+a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+a:hover {
+  color: #1f6391;
+  transform: translateY(-1px);
+}
+
+/* Form styling */
+form {
+  margin-top: 25px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: #34495e;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+select {
+  padding: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+  outline: none;
+}
+
+/* Buttons: gradient + neumorphism touch */
+button {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  color: #fff;
+  padding: 12px 26px;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 6px 18px rgba(52, 152, 219, 0.4);
+  transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(52, 152, 219, 0.5);
+  background: linear-gradient(90deg, #2980b9, #3498db);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Tables: clean, compact & elegant */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 10px 12px;   /* reduced padding to fit without scroll */
+  font-size: 13.5px;    /* smaller font to fit all columns */
+  text-align: left;
+}
+
+th {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 2; /* ensure header stays above rows */
+}
+
+tr:nth-child(even) {
+  background-color: rgba(239, 246, 251, 0.6);
+}
+
+tr:hover {
+  background-color: #e3f2fd;
+  transition: background-color 0.2s ease;
+}
+
+/* Action links & buttons inside tables */
+.actions a, .actions button {
+  margin-right: 6px;
+  margin-bottom: 4px;
+  display: inline-block;
+  font-size: 13px;
+  color: #3498db;
+}
+
+.actions button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #e74c3c;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  th {
+    display: none;
+  }
+
+  td {
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    font-weight: bold;
+    color: #34495e;
+  }
+}

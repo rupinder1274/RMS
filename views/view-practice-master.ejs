@@ -1,0 +1,26 @@
+<h1>🏢 View Practice Master</h1>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>SW Practice</th>
+        <th>Practice Manager</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (practices.length === 0) { %>
+        <tr>
+          <td colspan="2" style="text-align: center;">No practice records found.</td>
+        </tr>
+      <% } else { %>
+        <% practices.forEach(practice => { %>
+          <tr>
+            <td><%= practice.practiceName%></td>
+            <td><%= practice.practiceManager %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>

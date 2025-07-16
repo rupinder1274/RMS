@@ -1,0 +1,29 @@
+
+<h1>✅ Assigned Resources</h1>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Emp Code</th>
+        <th>Name</th>
+        <th>Project</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (assignedEmployees.length === 0) { %>
+        <tr>
+          <td colspan="3" style="text-align:center;">No resources assigned yet.</td>
+        </tr>
+      <% } else { %>
+        <% assignedEmployees.forEach(emp => { %>
+          <tr>
+            <td><%= emp.empCode %></td>
+            <td><%= emp.name %></td>
+            <td><%= emp.project %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
