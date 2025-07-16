@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>slidebar</title>
+  <title>Sidebar Toggle</title>
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <style>
     body {
       margin: 0;
       padding: 0;
-      display: flex;
       font-family: 'Segoe UI', sans-serif;
+      transition: margin-left 0.3s ease;
+      background: #f5fafd;
     }
 
     .sidebar {
@@ -18,9 +19,15 @@
       height: 100vh;
       position: fixed;
       top: 0;
-      left: 0;
+      left: -230px; /* hidden by default */
       padding-top: 30px;
       box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      left: 0; /* visible when active */
     }
 
     .sidebar h2 {
@@ -43,18 +50,41 @@
     }
 
     .main-content {
-      margin-left: 230px;
       padding: 40px;
-      width: calc(100% - 230px);
-      background: #f5fafd;
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
       min-height: 100vh;
+    }
+
+    .main-content.shifted {
+      margin-left: 230px;
+    }
+
+    #sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      background-color: #2c3e50;
+      color: white;
+      font-size: 18px;
+      padding: 10px 6px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      z-index: 1100;
+      transition: left 0.3s ease, transform 0.3s ease;
+    }
+
+    .sidebar.active + #sidebar-toggle {
+      left: 230px;
+      transform: translateY(-50%) rotate(180deg);
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
+
+  <div class="sidebar" id="sidebar">
     <h2>🧭 Admin Panel</h2>
-    <!-- <a href="/dashboard/admin">Home</a> -->
     <a href="/dashboard/admin/view-employees">📋 View Employees</a>
     <a href="/view-project-master">📁 View Project Master</a>
     <a href="/view-practice-master">🛠 View Practice Master</a>
@@ -65,8 +95,21 @@
     <a href="/logout">🚪 Logout</a>
   </div>
 
-  <div class="main-content">
+  <div id="sidebar-toggle">&#x25B6;</div> <!-- ▶ initially -->
+
+  <div class="main-content" id="main-content">
     <%- body %>
   </div>
+
+  <script>
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      mainContent.classList.toggle('shifted');
+    });
+  </script>
 </body>
 </html>

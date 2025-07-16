@@ -1,71 +1,4 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>Admin Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
-    th { background-color: #f4f4f4; }
-    a, button { margin-right: 8px; }
-    .actions form { display: inline; }
-  </style>
-</head>
-<body>
-  <h1>👨‍💼 Admin Dashboard</h1>
-
-  <a href="/upload-employees">📤 Upload Employees</a>
-  <a href="/logout" style="float:right;">🚪 Logout</a>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Emp Code</th>
-        <th>Name</th>
-        <th>Payroll Company</th>
-        <th>Division</th>
-        <th>Location</th>
-        <th>Designation</th>
-        <th>Home Practice</th>
-        <th>Practice Manager</th>
-        <th>Project</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (employees.length === 0) { %>
-        <tr>
-          <td colspan="10">No employees found.</td>
-        </tr>
-      <% } else { %>
-        <% employees.forEach(employee => { %>
-          <tr>
-            <td><%= employee.empCode %></td>
-            <td><%= employee.name %></td>
-            <td><%= employee.payrollCompany %></td>
-            <td><%= employee.division %></td>
-            <td><%= employee.location %></td>
-            <td><%= employee.designation %></td>
-            <td><%= employee.homePractice %></td>
-            <td><%= employee.practiceManager %></td>
-            <td><%= employee.project || 'Not Assigned' %></td>
-            <td class="actions">
-              <a href="/employees/<%= employee.empCode %>/assign-project">Assign</a>
-              <a href="/employees/<%= employee.empCode %>/edit">Edit</a>
-              <form method="POST" action="/employees/<%= employee.empCode %>/delete" onsubmit="return confirm('Are you sure you want to delete this employee?');">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <button type="submit">Delete</button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
-      <% } %>
-    </tbody>
-  </table>
-</body>
-</html>  -->
-
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Admin Dashboard</title>
@@ -81,93 +14,30 @@
     .dashboard-header-right a {
       font-size: 15px;
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="dashboard-header">
-      <div class="dashboard-header-left">
-        <a href="/upload-employees">📤 Upload Employees</a>
-      </div>
-      <h1>📊 Admin Dashboard</h1>
-      <div class="dashboard-header-right">
-        <a href="/logout">🚪 Logout</a>
-      </div>
-    </div>
-    <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Emp Code</th>
-          <th>Name</th>
-          <th>Payroll Company</th>
-          <th>Division</th>
-          <th>Location</th>
-          <th>Designation</th>
-          <th>Home Practice</th>
-          <th>Practice Manager</th>
-          <th>Project</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (employees.length === 0) { %>
-          <tr>
-            <td colspan="10" style="text-align:center;">No employees found.</td>
-          </tr>
-        <% } else { %>
-          <% employees.forEach(employee => { %>
-            <tr>
-              <td data-label="Emp Code"><%= employee.empCode %></td>
-              <td data-label="Name"><%= employee.name %></td>
-              <td data-label="Payroll Company"><%= employee.payrollCompany %></td>
-              <td data-label="Division"><%= employee.division %></td>
-              <td data-label="Location"><%= employee.location %></td>
-              <td data-label="Designation"><%= employee.designation %></td>
-              <td data-label="Home Practice"><%= employee.homePractice %></td>
-              <td data-label="Practice Manager"><%= employee.practiceManager %></td>
-              <td data-label="Project"><%= employee.project || 'Not Assigned' %></td>
-              <td class="actions" data-label="Actions">
-                <a href="/employees/<%= employee.empCode %>/assign-project">📌 Assign</a>
-                <a href="/employees/<%= employee.empCode %>/edit">✏️ Edit</a>
-                <form method="POST" action="/employees/<%= employee.empCode %>/delete" onsubmit="return confirm('Are you sure you want to delete this employee?');">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit">🗑 Delete</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
-    </table>
-    </div>
-  </div>
-</body>
-</html> -->
-
-<!-- above this -->
- <!DOCTYPE html>
-<html>
-<head>
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="/stylesheets/styles.css">
-  <style>
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .dashboard-header-left a,
-    .dashboard-header-right a {
-      font-size: 15px;
-    }
-    /* Sticky header */
     thead th {
       position: sticky;
       top: 0;
       z-index: 2;
     }
+    .search-bar {
+      margin-bottom: 20px;
+    }
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .pagination a {
+      margin: 0 5px;
+      padding: 5px 10px;
+      background: #2c3e50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .pagination .active {
+      background: #18bc9c;
+    }
   </style>
 </head>
 <body>
@@ -181,6 +51,13 @@
         <a href="/logout">🚪 Logout</a>
       </div>
     </div>
+
+    <!-- Search Form -->
+  <form class="search-bar" method="GET" action="/dashboard/admin/view-employees" style="margin-bottom: 15px;">
+  <input type="text" name="search" placeholder="Search by name or empCode" value="<%= search %>" />
+  <button type="submit">🔍 Search</button>
+</form>
+
     <div class="table-container">
       <table>
         <thead>
@@ -199,43 +76,35 @@
         </thead>
         <tbody>
           <% if (employees.length === 0) { %>
-            <tr>
-              <td colspan="10" style="text-align:center;">No employees found.</td>
-            </tr>
+            <tr><td colspan="10" style="text-align:center;">No employees found.</td></tr>
           <% } else { %>
             <% employees.forEach(employee => { %>
               <tr>
-                <td data-label="Emp Code"><%= employee.empCode %></td>
-                <td data-label="Name">👤 <%= employee.name %></td>
-                <td data-label="Payroll Company"><%= employee.payrollCompany %></td>
-                <td data-label="Division"><%= employee.division %></td>
-                <td data-label="Location"><%= employee.location %></td>
-                <td data-label="Designation"><%= employee.designation %></td>
-                <td data-label="Home Practice"><%= employee.homePractice %></td>
-                <td data-label="Practice Manager"><%= employee.practiceManager %></td>
-                <td data-label="Project">
+                <td><%= employee.empCode %></td>
+                <td>👤 <%= employee.name %></td>
+                <td><%= employee.payrollCompany %></td>
+                <td><%= employee.division %></td>
+                <td><%= employee.location %></td>
+                <td><%= employee.designation %></td>
+                <td><%= employee.homePractice %></td>
+                <td><%= employee.practiceManager %></td>
+                <td>
                   <% if (employee.project) { %>
-                    <span style="background-color:#d4edda; color:#155724; padding:3px 8px; border-radius:12px; font-size:12px;">
-                      📌 <%= employee.project %>
-                    </span>
+                    <span style="background-color:#d4edda; color:#155724; padding:3px 8px; border-radius:12px; font-size:12px;">📌 <%= employee.project %></span>
                   <% } else { %>
-                    <span style="background-color:#f8d7da; color:#721c24; padding:3px 8px; border-radius:12px; font-size:12px;">
-                      🔴 Not Assigned
-                    </span>
+                    <span style="background-color:#f8d7da; color:#721c24; padding:3px 8px; border-radius:12px; font-size:12px;">🔴 Not Assigned</span>
                   <% } %>
                 </td>
-                <td class="actions" data-label="Actions">
+                <td class="actions">
                   <a href="/employees/<%= employee.empCode %>/assign-project">📌 Assign</a>
-
                   <% if (employee.project) { %>
                     <form method="POST" action="/employees/<%= employee.empCode %>/dismiss-project" style="display:inline;">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" onclick="return confirm('Are you sure you want to dismiss this project?');">❌ Dismiss</button>
                     </form>
                   <% } %>
-
                   <a href="/employees/<%= employee.empCode %>/edit">✏️ Edit</a>
-                  <form method="POST" action="/employees/<%= employee.empCode %>/delete" onsubmit="return confirm('Are you sure you want to delete this employee?');" style="display:inline;">
+                  <form method="POST" action="/employees/<%= employee.empCode %>/delete" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this employee?');">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit">🗑 Delete</button>
                   </form>
@@ -246,9 +115,21 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <% if (totalPages > 1) { %>
+  <div class="pagination" style="margin-top: 20px; display: flex; gap: 10px;">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <% if (i === currentPage) { %>
+        <span style="font-weight: bold;"><%= i %></span>
+      <% } else { %>
+        <a href="/dashboard/admin/view-employees?page=<%= i %>&search=<%= search %>"><%= i %></a>
+      <% } %>
+    <% } %>
+  </div>
+<% } %>
+    </div>
   </div>
 </body>
 </html>
-
-
-

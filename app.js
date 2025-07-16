@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const csrf = require('csurf');
@@ -15,12 +15,20 @@ const ProjectMaster = require('./models/ProjectMaster');
 const PracticeMaster = require('./models/PracticeMaster');
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/hrms-app', {
+// mongoose.connect('mongodb://127.0.0.1:27017/hrms-app', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// })
+// .then(() => console.log('✅ MongoDB connected'))
+// .catch(err => console.error('❌ MongoDB error:', err));
+
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB error:', err));
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
 
 const app = express();
 const port = 3000;
@@ -116,6 +124,7 @@ app.post('/login', csrfProtection, async (req, res) => {
       title: 'Login',
       messages: ['Invalid credentials'],
       hasErrors: true,
+      layout: false,
       csrfToken: req.csrfToken()
     });
   }
@@ -150,10 +159,29 @@ app.get('/dashboard/admin', isAuth, isAdmin, csrfProtection, async (req, res) =>
 // View Employees Page
 app.get('/dashboard/admin/view-employees', isAuth, isAdmin, csrfProtection, async (req, res) => {
   try {
-    const employees = await Employee.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const search = req.query.search || '';
+
+    const query = {
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { empCode: { $regex: search, $options: 'i' } }
+      ]
+    };
+
+    const totalEmployees = await Employee.countDocuments(query);
+    const totalPages = Math.ceil(totalEmployees / limit);
+
+    const employees = await Employee.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.render('admin-dashboard', {
-      employees, // ✅ This line is crucial
+      employees,
+      currentPage: page,
+      totalPages,
+      search,
       csrfToken: req.csrfToken(),
       title: 'View Employees',
       layout: 'sidebar-layout'
@@ -164,6 +192,7 @@ app.get('/dashboard/admin/view-employees', isAuth, isAdmin, csrfProtection, asyn
     res.status(500).send('Error loading employee list.');
   }
 });
+
 
 // View Project Master
 app.get('/view-project-master', isAuth, isAdmin, async (req, res) => {
@@ -368,7 +397,7 @@ app.post('/employees/:id/edit', isAuth, isAdmin, csrfProtection, async (req, res
         practiceManager: req.body.practiceManager
       }
     );
-    res.redirect('/dashboard/admin');
+    res.redirect('/dashboard/admin/view-employees');
   } catch (err) {
     console.error('Edit POST Error:', err);
     res.status(500).send('Error updating employee');
@@ -378,7 +407,7 @@ app.post('/employees/:id/edit', isAuth, isAdmin, csrfProtection, async (req, res
 // Delete Employee POST
 app.post('/employees/:id/delete', isAuth, isAdmin, csrfProtection, async (req, res) => {
   await Employee.deleteOne({ empCode: req.params.id });
-  res.redirect('/dashboard/admin');
+  res.redirect('/dashboard/admin/view-employees');
 });
 
 // Assign Project GET
@@ -394,7 +423,7 @@ app.post('/employees/:id/assign-project', isAuth, isAdmin, csrfProtection, async
     { empCode: req.params.id },
     { project: req.body.project }
   );
-  res.redirect('/dashboard/admin');
+  res.redirect('/assigned-resources');
 });
 
 // ✅ New: Dismiss Project POST
@@ -404,7 +433,7 @@ app.post('/employees/:id/dismiss-project', isAuth, isAdmin, csrfProtection, asyn
       { empCode: req.params.id },
       { project: '' }
     );
-    res.redirect('/dashboard/admin');
+    res.redirect('/dashboard/admin/view-employees');
   } catch (err) {
     console.error('Dismiss Project Error:', err);
     res.status(500).send('Error dismissing project');
