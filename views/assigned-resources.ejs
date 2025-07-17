@@ -1,29 +1,27 @@
+<h2><%= title %></h2>
 
-<h1>✅ Assigned Resources</h1>
-
-<div class="table-container">
-  <table>
-    <thead>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Emp Code</th>
+      <th>Employee Name</th>
+      <th>Project</th>
+      <th>Practice</th>
+      <th>Date</th>
+      <th>Hours</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% assignedEmployees.forEach(assign => { %>
       <tr>
-        <th>Emp Code</th>
-        <th>Name</th>
-        <th>Project</th>
+        <td><%= assign.employee?.empCode || 'N/A' %></td>
+        <td><%= assign.employee?.name || 'N/A' %></td>
+        <td><%= assign.project?.projectName || 'N/A' %></td>
+        <td><%= assign.practice?.practiceName || 'N/A' %></td>
+        <td><%= assign.date ? assign.date.toISOString().split('T')[0] : 'N/A' %></td>
+        <td><%= assign.hours || 'N/A' %></td>
+
       </tr>
-    </thead>
-    <tbody>
-      <% if (assignedEmployees.length === 0) { %>
-        <tr>
-          <td colspan="3" style="text-align:center;">No resources assigned yet.</td>
-        </tr>
-      <% } else { %>
-        <% assignedEmployees.forEach(emp => { %>
-          <tr>
-            <td><%= emp.empCode %></td>
-            <td><%= emp.name %></td>
-            <td><%= emp.project %></td>
-          </tr>
-        <% }) %>
-      <% } %>
-    </tbody>
-  </table>
-</div>
+    <% }) %>
+  </tbody>
+</table>

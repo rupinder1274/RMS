@@ -1,4 +1,4 @@
-require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
 const csrf = require('csurf');
@@ -10,25 +10,22 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+
+//model
+
+const AssignedResource  = require('./models/assignedResource');
 const Employee = require('./models/Employee'); // employee model
 const ProjectMaster = require('./models/ProjectMaster');
 const PracticeMaster = require('./models/PracticeMaster');
+const AssignedSchedule = require('./models/AssignedSchedule');
 
 
-// mongoose.connect('mongodb://127.0.0.1:27017/hrms-app', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// })
-// .then(() => console.log('✅ MongoDB connected'))
-// .catch(err => console.error('❌ MongoDB error:', err));
-
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect('mongodb://127.0.0.1:27017/hrms-app', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('✅ Connected to MongoDB Atlas'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
-
+.then(() => console.log('✅ MongoDB connected'))
+.catch(err => console.error('❌ MongoDB error:', err));
 
 const app = express();
 const port = 3000;
@@ -156,12 +153,13 @@ app.get('/dashboard/admin', isAuth, isAdmin, csrfProtection, async (req, res) =>
     res.status(500).send('Error loading dashboard.');
   }
 });
+
+
 // View Employees Page
 app.get('/dashboard/admin/view-employees', isAuth, isAdmin, csrfProtection, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
     const search = req.query.search || '';
+    const limit = parseInt(req.query.limit) || 10;
 
     const query = {
       $or: [
@@ -170,29 +168,21 @@ app.get('/dashboard/admin/view-employees', isAuth, isAdmin, csrfProtection, asyn
       ]
     };
 
-    const totalEmployees = await Employee.countDocuments(query);
-    const totalPages = Math.ceil(totalEmployees / limit);
-
-    const employees = await Employee.find(query)
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const employees = await Employee.find(query).limit(limit);
 
     res.render('admin-dashboard', {
       employees,
-      currentPage: page,
-      totalPages,
       search,
+      limit,
       csrfToken: req.csrfToken(),
       title: 'View Employees',
       layout: 'sidebar-layout'
     });
-
   } catch (err) {
     console.error('Error fetching employees:', err);
     res.status(500).send('Error loading employee list.');
   }
 });
-
 
 // View Project Master
 app.get('/view-project-master', isAuth, isAdmin, async (req, res) => {
@@ -249,7 +239,7 @@ app.post('/upload-employees',
       }
 
       fs.unlinkSync(filePath);
-      res.redirect('/dashboard/admin');
+      res.redirect('/dashboard/admin/view-employees');
     } catch (err) {
       console.error('Excel Parse Error:', err);
       res.status(500).send('Error processing file.');
@@ -331,15 +321,15 @@ app.post('/upload-practice-master', isAuth, isAdmin, upload.single('practiceFile
   }
 });
 // View Project Master
-app.get('/view-project-master', isAuth, isAdmin, async (req, res) => {
-  try {
-    const projects = await ProjectMaster.find();
-    res.render('view-project-master', { projects });
-  } catch (err) {
-    console.error("Error fetching project master:", err);
-    res.status(500).send('Error loading project master.');
-  }
-});
+// app.get('/view-project-master', isAuth, isAdmin, async (req, res) => {
+//   try {
+//     const projects = await ProjectMaster.find();
+//     res.render('view-project-master', { projects });
+//   } catch (err) {
+//     console.error("Error fetching project master:", err);
+//     res.status(500).send('Error loading project master.');
+//   }
+// });
 
 // View Practice Master
 app.get('/view-practice-master', isAuth, isAdmin, async (req, res) => {
@@ -353,18 +343,27 @@ app.get('/view-practice-master', isAuth, isAdmin, async (req, res) => {
 });
 
 // Assigned Resources Page
+
+
 app.get('/assigned-resources', isAuth, isAdmin, async (req, res) => {
   try {
-    const assignedEmployees = await Employee.find({ project: { $ne: '' } });
+    const assignedEmployees = await AssignedSchedule.find()
+      .populate('employee')         // Populate employee details
+      .populate('project')          // Populate project details
+      .populate('practice');        // Populate practice details
+
     res.render('assigned-resources', {
-      title: 'Assigned Resources',
       assignedEmployees,
-      layout: 'sidebar-layout' // ✅ this applies the layout
+      title: 'Assigned Resources',
+      layout: 'sidebar-layout'
     });
   } catch (err) {
-    res.status(500).send('Error loading assigned resources');
+    console.error('Error loading assigned resources:', err);
+    res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 
 
@@ -397,7 +396,7 @@ app.post('/employees/:id/edit', isAuth, isAdmin, csrfProtection, async (req, res
         practiceManager: req.body.practiceManager
       }
     );
-    res.redirect('/dashboard/admin/view-employees');
+    res.redirect('/dashboard/admin');
   } catch (err) {
     console.error('Edit POST Error:', err);
     res.status(500).send('Error updating employee');
@@ -439,6 +438,104 @@ app.post('/employees/:id/dismiss-project', isAuth, isAdmin, csrfProtection, asyn
     res.status(500).send('Error dismissing project');
   }
 });
+// === 📅 Schedule Routes ===
+
+// Schedule Form Page
+app.get('/schedule', isAuth, isAdmin, csrfProtection, async (req, res) => {
+  try {
+    const employees = await Employee.find();
+    const projects = await ProjectMaster.find();
+    const practices = await PracticeMaster.find();
+
+    res.render('schedule', {
+      employees,
+      projects,
+      practices,
+      csrfToken: req.csrfToken(),
+      title: 'Assign Schedule',
+      layout: 'sidebar-layout'
+    });
+  } catch (err) {
+    console.error('Error loading schedule page:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// API to fetch employee by EmpCode
+app.get('/api/employee/:empCode', async (req, res) => {
+  try {
+    const emp = await Employee.findOne({ empCode: req.params.empCode });
+    if (!emp) return res.status(404).json({ error: 'Employee not found' });
+
+    res.json({
+      name: emp.name,
+      payrollCompany: emp.payrollCompany,
+      division: emp.division,
+      project: emp.project,
+      practice: emp.homePractice,
+      practiceHead: emp.practiceManager
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+
+// API to fetch project by name
+app.get('/api/project/:projectName', async (req, res) => {
+  try {
+    const project = await ProjectMaster.findOne({ projectName: req.params.projectName });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    res.json(project);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// API to fetch practice by name
+app.get('/api/practice/:practiceName', async (req, res) => {
+  try {
+    const practice = await PracticeMaster.findOne({ practiceName: req.params.practiceName });
+    if (!practice) return res.status(404).json({ error: 'Practice not found' });
+    res.json(practice);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// Save assigned schedule
+
+
+app.post('/schedule', isAuth, isAdmin, csrfProtection, async (req, res) => {
+  try {
+    const empCode = req.body.emp_id;
+    const employee = await Employee.findOne({ empCode });
+
+    if (!employee) return res.status(404).send('Employee not found');
+
+    const project = await ProjectMaster.findOne({ projectName: req.body.project_name });
+    const practice = await PracticeMaster.findOne({ practiceName: req.body.practice });
+
+    const newSchedule = new AssignedSchedule({
+      employee: employee._id,
+      project: project?._id || null,
+      practice: practice?._id || null,
+      date: req.body.date,
+      hours: req.body.hours,
+      scheduledBy: req.session.user?.email || 'System',
+      scheduledAt: new Date()
+    });
+
+    await newSchedule.save();
+    res.redirect('/assigned-resources');
+
+  } catch (err) {
+    console.error('Schedule Save Error:', err);
+    res.status(500).send('Failed to assign schedule');
+  }
+});
+
 
 // Logout
 app.get('/logout', (req, res) => {

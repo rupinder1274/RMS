@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scheduling Page</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <script>
+    async function fetchEmployee() {
+  const empId = document.getElementById('emp_id').value.trim();
+  if (!empId) return;
+
+  try {
+    const response = await fetch(`/api/employee/${empId}`);
+    if (!response.ok) throw new Error('Employee not found');
+    const data = await response.json();
+
+    document.getElementById('emp_name').value = data.name || '';
+    document.getElementById('payroll_company').value = data.payrollCompany || '';
+    document.getElementById('division').value = data.division || '';
+   document.getElementById('practice').value = data.practice || '';
+document.getElementById('practice_head').value = data.practiceHead|| '';
+
+  } catch (err) {
+    console.error('Error fetching employee:', err);
+    alert('No employee found with the provided Emp ID.');
+  }
+}
+
+    async function fetchProject() {
+      const projectName = document.getElementById('project_name').value.trim();
+      if (!projectName) return;
+
+      try {
+        const response = await fetch(`/api/project/${encodeURIComponent(projectName)}`);
+        if (!response.ok) throw new Error('Project not found');
+        const data = await response.json();
+
+        document.getElementById('project_manager').value = data.projectManager || '';
+        document.getElementById('cbsl_client').value = data.cbslClient || '';
+        document.getElementById('dih_client').value = data.dihClient || '';
+      } catch (err) {
+        console.error('Error fetching project:', err);
+        alert('No project found with the provided name.');
+      }
+    }
+  </script>
+</head>
+<body>
+  <h2>Assign Schedule</h2>
+
+  <form action="/schedule" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <label>Emp ID:</label>
+    <input type="text" id="emp_id" name="emp_id" onblur="fetchEmployee()" required><br>
+
+    <label>Emp Name:</label>
+    <input type="text" id="emp_name" name="emp_name" readonly><br>
+
+    <label>Payroll Company:</label>
+    <input type="text" id="payroll_company" name="payroll_company" readonly><br>
+
+    <label>Division:</label>
+    <input type="text" id="division" name="division" readonly><br>
+
+    <!-- Removed: Project field -->
+
+    <label>Practice:</label>
+    <input type="text" id="practice" name="practice" readonly><br>
+
+    <label>Practice Head:</label>
+    <input type="text" id="practice_head" name="practice_head" readonly><br>
+
+    <label>Project Name:</label>
+    <input type="text" id="project_name" name="project_name" onblur="fetchProject()" required><br>
+
+    <label>Project Manager:</label>
+    <input type="text" id="project_manager" name="project_manager" readonly><br>
+
+    <label>CBSL Client:</label>
+    <input type="text" id="cbsl_client" name="cbsl_client" readonly><br>
+
+    <label>DIH Client:</label>
+    <input type="text" id="dih_client" name="dih_client" readonly><br>
+
+    <label>Date:</label>
+    <input type="date" name="date" required><br>
+
+    <label>Hours:</label>
+    <input type="number" name="hours" min="1" max="24" required><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
