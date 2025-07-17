@@ -110,6 +110,9 @@ function isAdmin(req, res, next) {
 }
 
 // Routes
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
 
 // Login GET
 app.get('/login', csrfProtection, (req, res) => {
