@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('MONGODB_URI:', process.env.MONGODB_URI);
 const express = require('express');
 const session = require('express-session');
 const csrf = require('csurf');
@@ -26,14 +27,16 @@ const AssignedSchedule = require('./models/AssignedSchedule');
 // .then(() => console.log('✅ MongoDB connected'))
 // .catch(err => console.error('❌ MongoDB error:', err));
 
-const mongoURI = process.env.MONGODB_URI;
+ mongoURI = process.env.MONGODB_URI;
 
-mongoose.connect(mongoURI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+});
 
 const app = express();
 const port = 3000;
