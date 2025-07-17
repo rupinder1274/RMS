@@ -1,5 +1,21 @@
 <h2><%= title %></h2>
+<form method="GET" action="/assigned-resources">
+  <label>Date:</label>
+  <input type="date" name="date" value="<%= typeof filterDate !== 'undefined' ? filterDate : '' %>">
 
+  <label>Project:</label>
+  <select name="project">
+    <option value="">-- Select Project --</option>
+    <% projects.forEach(p => { %>
+      <option value="<%= p._id %>" <%= (filterProject == p._id.toString()) ? 'selected' : '' %>><%= p.projectName %></option>
+    <% }) %>
+  </select>
+
+  <button type="submit">Filter</button>
+  <a href="/assigned-resources"><button type="button">Clear</button></a>
+</form>
+
+<br>
 <table border="1">
   <thead>
     <tr>

@@ -346,18 +346,38 @@ app.get('/view-practice-master', isAuth, isAdmin, async (req, res) => {
 
 app.get('/assigned-resources', isAuth, isAdmin, async (req, res) => {
   try {
-    const assignedEmployees = await AssignedSchedule.find()
-      .populate('employee')         // Populate employee details
-      .populate('project')          // Populate project details
-      .populate('practice');        // Populate practice details
+    const { date, project } = req.query;
+    const filter = {};
+
+    if (date) {
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(selectedDate.getDate() + 1);
+      filter.date = { $gte: selectedDate, $lt: nextDay };
+    }
+
+    if (project) {
+      filter.project = project; // project is now an _id from the dropdown
+    }
+
+    const projects = await ProjectMaster.find().sort({ projectName: 1 });
+
+    const assignedEmployees = await AssignedSchedule.find(filter)
+      .populate('employee')
+      .populate('project')
+      .populate('practice')
+      .sort({ date: -1 });
 
     res.render('assigned-resources', {
-      assignedEmployees,
       title: 'Assigned Resources',
-      layout: 'sidebar-layout'
+      assignedEmployees,
+      projects,
+      filterDate: date,
+      filterProject: project
     });
   } catch (err) {
-    console.error('Error loading assigned resources:', err);
+    console.error('Error fetching assigned resources:', err);
     res.status(500).send('Internal Server Error');
   }
 });
@@ -500,6 +520,17 @@ app.get('/api/practice/:practiceName', async (req, res) => {
     res.json(practice);
   } catch (err) {
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+// For fetching a project by its ID
+app.get('/api/project-by-id/:id', async (req, res) => {
+  try {
+    const project = await ProjectMaster.findById(req.params.id);
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    res.json(project);
+  } catch (err) {
+    console.error('Error fetching project by ID:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
