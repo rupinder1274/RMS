@@ -544,12 +544,15 @@ app.post('/schedule', isAuth, isAdmin, csrfProtection, async (req, res) => {
 
     if (!employee) return res.status(404).send('Employee not found');
 
-    const project = await ProjectMaster.findOne({ projectName: req.body.project_name });
+    // FIX HERE: Use project_id instead of project_name
+    const projectId = req.body.project_id;
+    const project = await ProjectMaster.findById(projectId); // fetch by ID
+
     const practice = await PracticeMaster.findOne({ practiceName: req.body.practice });
 
     const newSchedule = new AssignedSchedule({
       employee: employee._id,
-      project: project?._id || null,
+      project: project?._id || null,  // ObjectId reference
       practice: practice?._id || null,
       date: req.body.date,
       hours: req.body.hours,
@@ -559,13 +562,11 @@ app.post('/schedule', isAuth, isAdmin, csrfProtection, async (req, res) => {
 
     await newSchedule.save();
     res.redirect('/assigned-resources');
-
   } catch (err) {
     console.error('Schedule Save Error:', err);
     res.status(500).send('Failed to assign schedule');
   }
 });
-
 
 // Logout
 app.get('/logout', (req, res) => {
