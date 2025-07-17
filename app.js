@@ -13,7 +13,6 @@ const mongoose = require('mongoose');
 
 //model
 
-const AssignedResource  = require('./models/assignedResource');
 const Employee = require('./models/Employee'); // employee model
 const ProjectMaster = require('./models/ProjectMaster');
 const PracticeMaster = require('./models/PracticeMaster');
@@ -396,7 +395,7 @@ app.post('/employees/:id/edit', isAuth, isAdmin, csrfProtection, async (req, res
         practiceManager: req.body.practiceManager
       }
     );
-    res.redirect('/dashboard/admin');
+    res.redirect('/dashboard/admin/view-employees');
   } catch (err) {
     console.error('Edit POST Error:', err);
     res.status(500).send('Error updating employee');
