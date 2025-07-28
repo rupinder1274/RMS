@@ -1504,7 +1504,8 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
-
+  // end of the file 
+  
 // Start server
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
