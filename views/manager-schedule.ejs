@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Assign Schedule</title>
+  <title>Manager Schedule</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     #employee-table {
@@ -15,39 +15,27 @@
 <body class="bg-light">
 
 <div class="container mt-5">
-  <h2 class="mb-4 text-primary text-center">🗓 Assign Schedule</h2>
+  <h2 class="mb-4 text-primary text-center">🗓️ Manager Schedule</h2>
 
   <div id="loading-status" class="mb-3 text-secondary"></div>
 
-  <form action="/schedule" method="POST" class="card p-4 shadow-sm bg-white">
+  <form action="/dashboard/manager/schedule" method="POST" class="card p-4 shadow-sm bg-white">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <!-- Warning Alert -->
     <div id="validationWarning" class="alert alert-danger d-none mb-3" role="alert"></div>
 
     <!-- Employee selection -->
     <div class="form-section">
-      <div class="row align-items-end mb-2">
-        <div class="col-md-12">
-          <div class="d-flex flex-wrap align-items-center gap-4">
-            <div class="flex-grow-1" style="min-width:260px;">
-              <label for="practice-dropdown" class="form-label mb-1"><strong>Select Home Practice:</strong></label>
-              <select id="practice-dropdown" class="form-select" onchange="onPracticeChange()">
-                <option value="all">All Employees</option>
-                <% practices.forEach(practice => { %>
-                  <option value="<%= practice %>"><%= practice %></option>
-                <% }) %>
-              </select>
-            </div>
-            <div class="flex-grow-1" style="min-width:260px; margin-top: 1.7rem;">
-              <label for="employee-search" class="form-label mb-1"><strong>Search Employees:</strong></label>
-              <input id="employee-search" type="text" class="form-control form-control-sm" style="max-width: 600px;"  placeholder="🔍 Search employees..." oninput="onEmployeeSearch()">
-            </div>
-          </div>
-        </div>
-      </div>
       <label class="form-label"><strong>Select Employees:</strong></label>
       <div id="employee-checkboxes" class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
-        <!-- Employee checkboxes will be rendered here by JS -->
+        <% employees.forEach(emp => { %>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="emp_ids" value="<%= emp.empCode %>" onchange="onEmployeeSelection()">
+            <label class="form-check-label">
+              <%= emp.empCode %> - <%= emp.name %>
+            </label>
+          </div>
+        <% }) %>
       </div>
     </div>
 
@@ -60,8 +48,8 @@
             <th>Name</th>
             <th>Payroll Company</th>
             <th>Division</th>
-            <th>Home Practice</th>
-            <th>Practice Manager</th>
+            <th>Practice</th>
+            <th>Practice Head</th>
           </tr>
         </thead>
         <tbody id="employee-table-body"></tbody>
@@ -95,64 +83,7 @@
 </div>
 
 <!-- ✅ JavaScript -->
-
 <script>
-  // Employees data for filtering (injected from server)
-  const allEmployees = <%-JSON.stringify(employees) %>;
-
-  // Render employee checkboxes for selected practice
-function renderEmployeeCheckboxes(practice, searchTerm = '') {
-  const container = document.getElementById('employee-checkboxes');
-  container.innerHTML = '';
-  let filtered = [];
-  if (!practice || practice === 'all') {
-    filtered = allEmployees;
-  } else {
-    filtered = allEmployees.filter(emp => emp.homePractice === practice);
-  }
-  if (searchTerm) {
-    const term = searchTerm.trim().toLowerCase();
-    filtered = filtered.filter(emp =>
-      emp.empCode.toLowerCase().includes(term) ||
-      (emp.name && emp.name.toLowerCase().includes(term))
-    );
-  }
-  if (!filtered.length) {
-    container.innerHTML = '<div class="text-muted">No employees found for this filter.</div>';
-    return;
-  }
-  filtered.forEach(emp => {
-    const div = document.createElement('div');
-    div.className = 'form-check';
-    div.innerHTML = `
-      <input class="form-check-input" type="checkbox" name="emp_ids" value="${emp.empCode}" onchange="onEmployeeSelection()">
-      <label class="form-check-label">${emp.empCode} - ${emp.name}</label>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// Handle employee search input
-function onEmployeeSearch() {
-  const practice = document.getElementById('practice-dropdown').value;
-  const searchTerm = document.getElementById('employee-search').value;
-  renderEmployeeCheckboxes(practice, searchTerm);
-}
-
-  // On practice dropdown change
-  function onPracticeChange() {
-    const practice = document.getElementById('practice-dropdown').value;
-    const searchTerm = document.getElementById('employee-search') ? document.getElementById('employee-search').value : '';
-    renderEmployeeCheckboxes(practice, searchTerm);
-    // Clear employee table and project allocation section
-    fetchEmployeeDetails([]);
-    document.getElementById('project-allocation-section').innerHTML = '';
-  }
-
-  // On page load, clear checkboxes
-  document.addEventListener('DOMContentLoaded', function() {
-    renderEmployeeCheckboxes('');
-  });
   // Helper: fetch and show selected employee details
   async function fetchEmployeeDetails(selected) {
     const tbody = document.getElementById('employee-table-body');
@@ -173,8 +104,8 @@ function onEmployeeSearch() {
             <td>${emp.name || ''}</td>
             <td>${emp.payrollCompany || ''}</td>
             <td>${emp.division || ''}</td>
-            <td>${emp.homePractice || ''}</td>
-            <td>${emp.practiceManager || ''}</td>
+            <td>${emp.practice || ''}</td>
+            <td>${emp.practiceHead || ''}</td>
           </tr>`;
         tbody.insertAdjacentHTML('beforeend', row);
       } catch {
@@ -248,7 +179,7 @@ function onEmployeeSearch() {
         <div class='text-danger small hours-warning' style='display:none;'></div>
       </div>
       <div class='col-md-2'>
-        <button type='button' class='btn btn-outline-danger btn-sm' onclick='this.parentElement.parentElement.remove()'>🗑</button>
+        <button type='button' class='btn btn-outline-danger btn-sm' onclick='this.parentElement.parentElement.remove()'>🗑️</button>
       </div>
     `;
     container.appendChild(row);
@@ -318,4 +249,4 @@ function onEmployeeSearch() {
 </script>
 
 </body>
-</html> 
+</html>
